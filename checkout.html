@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ShopEasy — Checkout</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="checkout">
+  <header class="header"><div class="inner container">
+    <div class="logo"><span class="emoji">🛒</span><span>ShopEasy</span></div>
+    <nav class="nav">
+      <a href="frontpage.html">Home</a>
+      <a href="cart.html">Cart <span id="cart-count" class="cart-badge"></span></a>
+    </nav>
+  </div></header>
+
+  <main class="container">
+    <h2>Checkout</h2>
+    <form id="checkout-form" class="checkout-form">
+      <div>
+        <h3>Shipping</h3>
+        <label>Full name<br><input required name="name"></label><br><br>
+        <label>Address<br><input required name="address"></label><br><br>
+        <label>City / ZIP<br><input required name="city"></label><br><br>
+      </div>
+      <div>
+        <div id="order-summary"></div>
+        <div style="margin-top:12px"><button type="submit" class="btn primary">Pay (mock)</button></div>
+      </div>
+    </form>
+  </main>
+
+  <footer style="padding:18px;text-align:center">© <span id="year"></span> ShopEasy</footer>
+
+  <script src="app.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

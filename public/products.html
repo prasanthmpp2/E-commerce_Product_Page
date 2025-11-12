@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Products</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/responsive.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1 class="logo">Shop</h1>
+      <nav class="nav">
+        <a href="/login.html">Login</a>
+        <a href="/add-product.html">Add Product</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="controls">
+      <input id="search" type="search" placeholder="Search products" aria-label="Search products">
+      <select id="sort">
+        <option value="newest">Newest</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+      </select>
+    </section>
+
+    <section id="products" class="product-grid" aria-live="polite">
+      <!-- Products will be rendered here -->
+    </section>
+
+    <div id="msg" class="msg" aria-hidden="true"></div>
+  </main>
+
+<script>
+async function fetchProducts() {
+  try {
+    const res = await fetch('/api/products');
+    if (!res.ok) throw new Error('Failed to load');
+    return res.json();
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+function currency(n) {
+  return '$' + (Math.round(n * 100) / 100).toFixed(2);
+}
+
+function render(products) {
+  const container = document.getElementById('products');
+  container.innerHTML = '';
+  if (!products.length) {
+    container.innerHTML = '<div class="empty">No products found.</div>';
+    return;
+  }
+  products.forEach(p => {
+    const card = document.createElement('article');
+    card.className = 'product-card';
+
+    const img = document.createElement('img');
+    img.className = 'product-image';
+    img.alt = p.title || 'Product image';
+    img.src = p.image || '/placeholder.png';
+
+    const meta = document.createElement('div');
+    meta.className = 'product-meta';
+
+    const title = document.createElement('h3');
+    title.textContent = p.title;
+
+    const price = document.createElement('div');
+    price.className = 'product-price';
+    price.textContent = currency(p.price || 0);
+
+    const desc = document.createElement('p');
+    desc.className = 'product-desc';
+    desc.textContent = p.description ? (p.description.length > 120 ? p.description.slice(0, 120) + '…' : p.description) : '';
+
+    meta.appendChild(title);
+    meta.appendChild(price);
+    meta.appendChild(desc);
+
+    card.appendChild(img);
+    card.appendChild(meta);
+    container.appendChild(card);
+  });
+}
+
+function applyFilters(products) {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const sort = document.getElementById('sort').value;
+  let out = products.filter(p => !q || (p.title && p.title.toLowerCase().includes(q)) || (p.description && p.description.toLowerCase().includes(q)));
+  if (sort === 'price-asc') out.sort((a,b) => a.price - b.price);
+  if (sort === 'price-desc') out.sort((a,b) => b.price - a.price);
+  if (sort === 'newest') out.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return out;
+}
+
+(async function init() {
+  const products = await fetchProducts();
+  render(products);
+
+  document.getElementById('search').addEventListener('input', () => render(applyFilters(products)));
+  document.getElementById('sort').addEventListener('change', () => render(applyFilters(products)));
+})();
+</script>
+</body>
+</html>
